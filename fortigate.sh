@@ -61,7 +61,8 @@ log_file -noappend $logfile
 spawn ssh $username@$host -p $port
 #test rsa fingerprint
 expect "(yes/no)? " { send "yes\r" }
-#set timeout 10
+
+#Give password
 expect "password:"
 send "$password\r"
 #### Start adding certificate
