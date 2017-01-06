@@ -19,7 +19,7 @@ The fortimail.sh script checks if there's a new certificate (with timestamp toda
 For further instructions: same as Fortigate.
 
 # update_tlsa
-This script checks and updates your TSLA DNS records (hosted by TransIP) for specified dns entry.  It's using the [TransIP API](https://www.transip.nl/transip/api/) for that.
+This script checks your TSLA DNS record (hosted by TransIP) for specified dns entry, and create/updates it when your TSLA record is incorrect.  It's using the [TransIP API](https://www.transip.nl/transip/api/).
 
 Installation:
 Copy the update_tlsa.php into the dehydrated map.
@@ -27,3 +27,15 @@ Usage:
 Start the script with two commandline options:
 `update_tlsa.php <dnsname> <tcp_port>`
 
+# Start Let's Encrypt
+To manage all certificate update's i created a simple scriptfile to start the whole process in order:
+```
+#!/usr/bin/env bash
+cd ~/dehydrated
+./dehydrated -c
+./fortigate.sh
+./update_tlsa.php  name.domain.extension 443
+./fortimail.sh
+./update_tlsa.php name.domain.extension 25
+```
+You can schedule this script with cron. (e.g. once a week)
