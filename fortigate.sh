@@ -37,7 +37,7 @@ set fdate [exec stat certs/$certname/cert.pem | grep Modify]
 set filedate [string range $fdate 8 17]
 
 if { $filedate != $currdate } {
-  send_user "Certificate timestamp $filedate not equal $currdate, certificate not updated.\n"
+  send_user "Certificate $certname: timestamp $filedate not equal $currdate, certificate not updated.\n"
   exit
 }
 
