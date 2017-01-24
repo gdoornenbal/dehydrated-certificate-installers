@@ -37,7 +37,7 @@ set fdate [exec stat certs/$certname/cert.pem | grep Modify]
 set filedate [string range $fdate 8 17]
 
 if { $filedate != $currdate } {
-  send_user "Certificate timestamp $filedate not equal $currdate, certificate not updated.\n"
+  send_user "Certificate $certname: timestamp $filedate not equal $currdate, certificate not updated.\n"
   exit
 }
 
@@ -61,7 +61,8 @@ log_file -noappend $logfile
 spawn ssh $username@$host -p $port
 #test rsa fingerprint
 expect "(yes/no)? " { send "yes\r" }
-#set timeout 10
+
+#Give password
 expect "password:"
 send "$password\r"
 #### Start adding certificate
