@@ -28,14 +28,10 @@ Start the script with two commandline options:
 `update_tlsa.php <dnsname> <tcp_port>`
 
 # Start Let's Encrypt
-To manage all certificate update's i created a simple scriptfile to start the whole process in order:
-```
-#!/usr/bin/env bash
-cd ~/dehydrated
-./dehydrated -c
-./fortigate.sh
-./update_tlsa.php  name.domain.extension 443
-./fortimail.sh
-./update_tlsa.php name.domain.extension 25
-```
+Start startle.sh to manage all certificate update's.  I created a simple scriptfile to start the whole process in order, en create a logfile of the whole process.
+
 You can schedule this script with cron. (e.g. once a week)
+```
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+0 6 * * 1 ~/dehydrated/startle.sh
+```
