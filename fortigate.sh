@@ -57,6 +57,10 @@ send_user "Starting log in $logfile\n"
 log_file -noappend $logfile
 }
 
+#Before login remove old ssh identification key as it has been changed since last time..
+set args "-f \"$env(HOME)/.ssh/known_hosts\" -R \[$host\]:$port"
+exec ssh-keygen {*}$args 2>&1
+
 #Login to fortinet host
 spawn ssh $username@$host -p $port
 #test rsa fingerprint
@@ -69,7 +73,7 @@ send "$password\r"
 expect $prompt
 send "config vpn certificate local\r"
 expect $prompt
-send "edit test$fgcertname\r"
+send "edit $fgcertname\r"
 expect $prompt
 send_user "set password <---password suppressed--->\r\n"
 send "set password $certpass\r"
