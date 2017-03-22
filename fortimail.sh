@@ -68,7 +68,7 @@ send "$password\r"
 expect $prompt
 send "config system certificate local\r"
 expect $prompt
-send "edit test$fgcertname\r"
+send "edit $fgcertname\r"
 expect $prompt
 send_user "set password <---password suppressed--->\r\n"
 send "set password $certpass\r"
