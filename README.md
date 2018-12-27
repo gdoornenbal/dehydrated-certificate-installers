@@ -22,7 +22,7 @@ This script checks your TSLA DNS record (hosted by TransIP) for specified dns en
 
 **Usage**: Start the script with at least two commandline options:
 
-`update_tlsa.php -h <dnsname> -t <tlsatype without spaces> [ -p <tcp_port> -i <ip address remote service>`
+`update_tlsa.php -h <dnsname> -t <tlsatype without spaces> [ -p <tcp_port> -i <ip address remote service> ]`
 
 ## Start Let's Encrypt
 Start startle.sh to manage all certificate and dns update's.  I created a simple scriptfile to start the whole process in order, en create a logfile of the whole process. This logfile can be send to yourself to review the process..
