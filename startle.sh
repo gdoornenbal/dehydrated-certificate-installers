@@ -18,12 +18,12 @@ main_function() {
 #Put here are all commands you want to run, these are some examples.
 ./dehydrated -c 
 ./fortigate.sh 
-./update_tlsa.php  <host.yourdomain.com> 443 
+./update_tlsa.php  -h <host.yourdomain.com> -t 311 -p 443 
 ./fortimail.sh 
-./update_tlsa.php <mail.yourdomain.com> 25 
+./update_tlsa.php -h <mail.yourdomain.com> -t 311 -p 25 
 }
 
-#Start the script, output into logfile!
+#Start the script, all output into logfile!
 main_function 2>&1 >$logfile
 #Send the email with the logfile.
 sendEmail -s $mailserver -t $to -u Certificate check is done -f $from -o message-file=$logfile
