@@ -2,7 +2,7 @@
 Tools to install Let's Encrypt certificates which are created with [dehydrated](https://github.com/lukas2511/dehydrated), using dns-01 challenge with the [TransIP API](https://www.transip.nl/transip/api/).
 
 ## Fortigate
-The fortigate.sh script checks if there's a new certificate (with timestamp today), adds encryption to the privatekey, and uploads it into the fortigate.
+The fortigate.sh script checks if there's a new certificate (with ExpiryDate newer than current certificatet), adds encryption to the privatekey, and uploads it into the fortigate.
 
 **Installation**: Copy the fortigate.conf and fortigate.sh file into the dehydrated map.
 
