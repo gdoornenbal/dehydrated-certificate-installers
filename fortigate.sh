@@ -1,7 +1,10 @@
 #!/usr/bin/expect
 #
 # script to update LetsEncrypt Certificate on fortigate
-# Created by Gerrit Doornenbal (jan 2017) v0.1
+# Created by Gerrit Doornenbal 
+#  jan 2017 v0.1 initial release
+#  jun 2019 v0.2 Updated certificate check with real date comparison
+#                Option to remove ssh key after update
 #
 # Dependencies:
 #   * certificate's created by dehydrated (Let's Encrypt)
@@ -27,18 +30,23 @@ if {[file exists $configfile]} {
 set prompt "#"
 set timeout 2
 
-#Check if new certificate is created
+#Check if certificate is created
 if {[file exists certs/$certname/privkey.pem] == 0} {
 	send_user "Certificate file certs/$certname/privkey.pem not found. script stopped.\n"
 	exit 1
 }
-set currdate [clock format [clock seconds] -format {%Y-%m-%d}]
-set fdate [exec stat certs/$certname/cert.pem | grep Modify]
-set filedate [string range $fdate 8 17]
+#Read ExpiryDates from certificates and compare them..
+set livecertdate [exec echo | openssl s_client -showcerts -connect $host:$sslport 2>/dev/null | openssl x509 -noout -enddate | cut -d = -f 2 ]
+set filecertdate [exec echo | openssl x509 -in certs/$certname/cert.pem -noout -dates | grep notAfter | cut -d = -f 2 ]
+set livecertUTC [clock scan $livecertdate -format "%b %d %H:%M:%S %Y %Z" ]
+set filecertUTC [clock scan $filecertdate -format "%b %d %H:%M:%S %Y %Z" ]
+# format Jun 16 04:08:00 2019 GMT
 
-if { $filedate != $currdate } {
-  send_user "Certificate $certname: timestamp $filedate not equal $currdate, certificate not updated on $host.\n"
+if { [expr {$livecertUTC >= $filecertUTC}] } {
+  send_user "Certificate EndDate ($livecertdate) is equal or newer than local cert ($filecertdate), certificate not updated.\n"
   exit
+} else {
+  send_user "Certificate EndDate ($livecertdate) is older than local cert, certificate will be updated!!\n"
 }
 
 #Create hashed private key (stderr info redirected to stdout as openssl outputs informational info to stderr..)
@@ -57,16 +65,11 @@ send_user "Starting log in $logfile\n"
 log_file -noappend $logfile
 }
 
-#Before login remove old ssh identification key as it has been changed since last time..
-set args "-f \"$env(HOME)/.ssh/known_hosts\" -R \[$host\]:$port"
-exec ssh-keygen {*}$args 2>&1
-
 #Login to fortinet host
-spawn ssh $username@$host -p $port
+spawn ssh $username@$host -p $sshport
 #test rsa fingerprint
 expect "(yes/no)? " { send "yes\r" }
-
-#Give password
+#set timeout 10
 expect "password:"
 send "$password\r"
 #### Start adding certificate
@@ -136,6 +139,12 @@ close $out
 close $in
 file delete -force $logfile 
 file rename -force $tmpfile $logfile
+
+#Remove current SSH host key?
+if { $removekey == "yes" } {
+  send_user "Host key fingerprint of $host is removed..\n"
+  exec ssh-keygen -f "$env(HOME)/.ssh/known_hosts" -R "$host"
+}
 
 #Email the logging.
 if { $emailto != "" && $emailfrom != "" && $emailserver != ""} {
